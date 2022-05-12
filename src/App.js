@@ -9,18 +9,23 @@ function App() {
     const [userInfo, setUserInfo] = useState();
     const [provider, setProvider] = useState();
     const [contract, setContract] = useState();
+    const [render, setRender] = useState();
     const contractAddress = '0xe6871022a53ebe7e30f0274d1052c65785918068'
     // const [account, setAccount] = useState();
     return (
-        <Routes >
-            <mainContext.Provider value={{ setUserInfo , setProvider , userInfo , provider , contract , setContract , contractAddress}}>
+        <mainContext.Provider
+            value={{
+                setUserInfo, setProvider, userInfo, provider, contract,
+                setContract, contractAddress, setRender, render
+            }}>
+            <Routes >
                 {
                     routes.map((data, index) => (
                         <Route exact={true} path={data.path} element={data.component} key={index} />
                     ))
                 }
-            </mainContext.Provider >
-        </Routes>
+            </Routes>
+        </mainContext.Provider >
     );
 }
 

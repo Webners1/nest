@@ -1,14 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Navigation, Scrollbar, A11y } from "swiper";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
+// import { Swiper, SwiperSlide } from "swiper/react";
+// import "swiper/css";
 
 const Slider02 = (props) => {
   const data = props.data;
   return (
     <section className="tf-slider slider">
-      <Swiper
+      {/* <Swiper
         modules={[Navigation, Scrollbar, A11y]}
         spaceBetween={0}
         slidesPerView={1}
@@ -20,7 +20,7 @@ const Slider02 = (props) => {
             <SliderItem item={item} />
           </SwiperSlide>
         ))}
-      </Swiper>
+      </Swiper> */}
     </section>
   );
 };
