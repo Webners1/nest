@@ -1,6 +1,7 @@
-import React, { useState , useEffect , useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { mainContext } from '../../Contexts/mainContext';
 import Web3 from 'web3';
+import WalletConnectProvider from "@walletconnect/web3-provider";
 import contractAbi from "../../abis/contract.json";
 import { Link } from 'react-router-dom'
 import img1 from '../../assets/images/icon/icon-1.svg'
@@ -12,9 +13,10 @@ import img6 from '../../assets/images/icon/icon-6.svg'
 import img7 from '../../assets/images/icon/icon-7.png'
 import img8 from '../../assets/images/icon/icon-8.svg'
 import img9 from '../../assets/images/icon/icon-9.svg'
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 
 const WalletConnect = () => {
-    const { setUserInfo, setProvider, setContract, contractAddress , provider} = useContext(mainContext);
+    const { setUserInfo, setProvider, setContract, contractAddress , tokenAddress} = useContext(mainContext);
 
     //FUNCTIONS
     const loadContract = () => {
@@ -26,6 +28,12 @@ const WalletConnect = () => {
             contractAddress
         )
         setContract(contract)
+        const token = new web3.eth.Contract(
+            tokenAbi.abi,
+            tokenAddress
+        )
+        setToken(token)
+        console.log(contract)
         // console.log(nativeTokenContract);
     };
 
@@ -41,7 +49,7 @@ const WalletConnect = () => {
         try {
             let chainId = await web3.eth.getChainId();
             console.log(chainId);
-            if (chainId == 137) {
+            if (chainId == 80001) {
                 loadContract()
                 // AFTER GETTING CHAINID WE CAN CONDITION IF ELSE
                 let account = await web3.eth.getAccounts();
@@ -108,41 +116,63 @@ const WalletConnect = () => {
         }
     };
 
-    // const loadWeb3ViaWalletConnect = async () => {
-    //     try {
-    //         //  Create WalletConnect Provider
-    //         const provider = new WalletConnectProvider({
-    //             infuraId: "27e484dcd9e3efcfd25a83a78777cdf1", // Required
-    //         });
+    const loadWeb3ViaWalletConnect = async () => {
+        try {
+            //  Create WalletConnect Provider
+            const provider = new WalletConnectProvider({
+                infuraId: "27e484dcd9e3efcfd25a83a78777cdf1", // Required
+            });
 
-    //         //  Enable session (triggers QR Code modal)
-    //         await provider.enable();
+            //  Enable session (triggers QR Code modal)
+            await provider.enable();
 
-    //         //  Create Web3
-    //         const web3 = new Web3(provider);
-    //         userData(web3);
-    //     } catch (e) {
-    //         console.log(e);
-    //     }
-    // };
+            //  Create Web3
+            const web3 = new Web3(provider);
+            userData(web3);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    const loadWeb3ViaCoinbase = async () => {
+        try {
+            // //  Create WalletConnect Provider
+            // const provider = new CoinbaseWalletSDK({
+            //     infuraId: "27e484dcd9e3efcfd25a83a78777cdf1", // Required
+            // });
+
+            // //  Enable session (triggers QR Code modal)
+            // await provider.enable();
+
+            // //  Create Web3
+            // const web3 = new Web3(provider);
+            // userData(web3);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    const connectWallet = (index) => {
+        switch (index) {
+            case 0:
+                loadWeb3ViaMetaMask()
+                break;
+            case 1:
+                loadWeb3ViaWalletConnect()
+                break;
+            case 2:
+                loadWeb3ViaCoinbase()
+                break;
+            default:
+                break;
+        }
+    }
 
     const [data] = useState(
         [
             {
                 img: img1,
                 title: 'Meta Mask',
-                text: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,',
-                class: ''
-            },
-            {
-                img: img2,
-                title: 'Bitski',
-                text: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,',
-                class: ''
-            },
-            {
-                img: img3,
-                title: 'Fortmatic',
                 text: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,',
                 class: ''
             },
@@ -155,6 +185,18 @@ const WalletConnect = () => {
             {
                 img: img5,
                 title: 'Coinbase Wallet',
+                text: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,',
+                class: ''
+            },
+            {
+                img: img2,
+                title: 'Bitski',
+                text: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,',
+                class: ''
+            },
+            {
+                img: img3,
+                title: 'Fortmatic',
                 text: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,',
                 class: ''
             },
@@ -202,7 +244,7 @@ const WalletConnect = () => {
                                         <img src={item.img} alt="Wallet Icons" />
                                     </div>
                                     <div className="content">
-                                        <h4><Link to="/login">{item.title}</Link></h4>
+                                        <h4><a onClick={() => connectWallet(index)}>{item.title}</a></h4>
                                         <p>{item.text}</p>
                                     </div>
                                 </div>

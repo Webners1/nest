@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext } from "react";
+import { mainContext } from "../Contexts/mainContext";
 import Header from "../components/header/Header";
 import Slider from "../components/slider/Slider";
 import { Link } from "react-router-dom";
@@ -8,6 +9,22 @@ import Footer from "../components/footer/Footer";
 import { Newsletters } from "../components/layouts/home/Newsletters";
 
 const Home02 = () => {
+  const { contract } = useContext(mainContext);
+  const tokenURI = async (tokenId) => {
+    try {
+      await contract.methods.tokenURI(tokenId).call(function (err, res) {
+        if (err) {
+          console.log("An error occured", err);
+          return;
+        } else {
+          // setOwnerOf(res);
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <div className="home-2">
       <Header />
