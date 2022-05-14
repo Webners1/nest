@@ -22,18 +22,19 @@ const Home02 = () => {
   const [approveForMaxMatureBirdBtn, setApproveForMaxMatureBirdBtn] = useState(false);
   const [upgradeToMatureBirdBtn, setUpgradeToMatureBirdBtn] = useState(false);
   const [upgradeToMaxMatureBirdBtn, setUpgradeToMaxMatureBirdBtn] = useState(false);
+  const [upgradeBtn, setUpgradeBtn] = useState(true);
 
   //FUNCTIONS
   //CALLING FUNCTIONS
 
   useEffect(() => {
     if (tokenId) {
-      ownerOf(),
-        tokenURI(),
-        level(),
-        matureBirdCost(),
-        maxMatureBirdCost(),
-        allowance()
+      ownerOf()
+      tokenURI()
+      level()
+      matureBirdCost()
+      maxMatureBirdCost()
+      allowance()
     }
   }, [tokenId])
 
@@ -206,7 +207,6 @@ const Home02 = () => {
                 <div className="content-left">
                   <div className="inner">
                     <h3>My NFT's</h3>
-
                   </div>
                 </div>
               </div>
@@ -220,6 +220,15 @@ const Home02 = () => {
             </div>
             <div className="col-xl-6 col-lg-12 col-md-12">
               <div className="content-item">
+                <div>
+                  {/* THIS ONCHANGE WILL HAVE THE TOKENID WE WILLL SET TOKEN ID HERE */}
+                  <select onChange={(e) => console.log(e.target.value)} className="font-weight-bold rounded text-dark p-3 col-xl-12 col-lg-12 col-md-1">
+                    <option value="grapefruit">Grapefruit</option>
+                    <option value="lime">Lime</option>
+                    <option selected value="coconut">Coconut</option>
+                    <option value="mango">Mango</option>
+                  </select>
+                </div>
                 <h3> First NFT</h3>
                 <p className="mg-bt-42">
                   Sed ut perspiciatis unde omnis iste natus error sit voluptatem
@@ -253,12 +262,56 @@ const Home02 = () => {
                     <div className="price">Text</div>
                   </div>
                 </div>
-                <Link
-                  to="/connect-wallet"
-                  className="sc-button style letter style-2 style-item-details wallet-btn"
+                {upgradeBtn &&
+                  <button
+                    onClick={() => { upgradeBird(); setUpgradeBtn(!upgradeBtn) }}
+                    className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
+                  >
+                    <span>Upgrade</span>
+                  </button>
+                }
+                {
+                  approveForMatureBirdBtn &&
+                  <button
+                    onClick={() => approve(matureBirdCostState)}
+                    className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
+                  >
+                    <span>Approve Mature Bird</span>
+                  </button>
+                }
+                {
+                  approveForMaxMatureBirdBtn &&
+                  <button
+                    onClick={() => approve(maxMatureBirdCostState)}
+                    className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
+                  >
+                    <span>Approve Max Mature Bird</span>
+                  </button>
+                }
+                {
+                  upgradeToMatureBirdBtn &&
+                  <button
+                    onClick={() => upgradeToMatureBird()}
+                    className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
+                  >
+                    <span>Approve Max Mature Bird</span>
+                  </button>
+                }
+                {
+                  upgradeToMaxMatureBirdBtn &&
+                  <button
+                    onClick={() => upgradeToMaxMatureBird()}
+                    className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
+                  >
+                    <span>Approve Max Mature Bird</span>
+                  </button>
+                }
+                {/* <button
+                  onClick={() => { }}
+                  className="ml-2 sc-button style letter style-2 style-item-details"
                 >
-                  <span>Calim Button</span>
-                </Link>
+                  <span>Withdraw</span>
+                </button> */}
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useContext , useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { mainContext } from "../Contexts/mainContext";
 import { Link } from "react-router-dom";
 import Header from "../components/header/Header";
@@ -9,12 +9,29 @@ import Countdown from "react-countdown";
 
 const HatchingStation
   = () => {
-    const { contract, setRender, render , userInfo} = useContext(mainContext)
+    const { contract, setRender, render, userInfo } = useContext(mainContext)
     const [hatchRemainingTimeState, setHatchRemainingTime] = useState(0);
+    const [tokenId, setTokenId] = useState();
 
     // FUNCTIONS
 
-    const hatchRemainingTime = async (tokenId) => {
+    useEffect(() => {
+      if (tokenId) {
+        hatchRemainingTime()
+      }
+    }, [tokenId])
+
+    const lockInIncubator = async () => {
+      try {
+        await contract.methods.lockInIncubator(tokenId).send({ from: userInfo?.address }).on('transactionHash', Hash => {
+          setRender(!render)
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+    const hatchRemainingTime = async () => {
       try {
         await contract?.methods.hatchRemainingTime(tokenId).call(function (err, res) {
           if (err) {
@@ -29,7 +46,7 @@ const HatchingStation
       }
     }
 
-    const hatchEgg = async (tokenId) => {
+    const hatchEgg = async () => {
       try {
         await contract?.methods.hatchEgg(tokenId).send({ from: userInfo?.address }).on('transactionHash', Hash => {
           setRender(!render)
@@ -42,7 +59,7 @@ const HatchingStation
     useEffect(() => {
       hatchRemainingTime()
     }, [render])
-    
+
 
     return (
       <div>
@@ -91,6 +108,15 @@ const HatchingStation
               </div>
               <div className="col-xl-6 col-lg-12 col-md-12">
                 <div className="content-item">
+                  <div>
+                    {/* THIS ONCHANGE WILL HAVE THE TOKENID WE WILLL SET TOKEN ID HERE */}
+                    <select onChange={(e) => console.log(e.target.value)} className="font-weight-bold rounded text-dark p-3 col-xl-12 col-lg-12 col-md-1">
+                      <option value="grapefruit">Grapefruit</option>
+                      <option value="lime">Lime</option>
+                      <option selected value="coconut">Coconut</option>
+                      <option value="mango">Mango</option>
+                    </select>
+                  </div>
                   <h3> Egg NFT</h3>
                   <p className="mg-bt-42">
                     Sed ut perspiciatis unde omnis iste natus error sit voluptatem
@@ -112,12 +138,23 @@ const HatchingStation
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => hatchEgg()}
-                    className="sc-button style letter style-2 style-item-details hatch"
-                  >
-                    <span>Hatch</span>
-                  </button>
+                  {
+                    hatchRemainingTime === Date.now() ?
+                      <button
+                        onClick={() => hatchEgg()}
+                        className="sc-button style letter style-2 style-item-details hatch"
+                      >
+                        <span>Hatch</span>
+                      </button>
+                      :
+                      <button
+                        onClick={() => lockInIncubator()}
+                        className="sc-button style letter style-2 style-item-details hatch"
+                      >
+                        <span>Lock in Incubator</span>
+                      </button>
+                  }
+
                 </div>
               </div>
             </div>
