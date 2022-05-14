@@ -3,6 +3,7 @@ import { mainContext } from '../../Contexts/mainContext';
 import Web3 from 'web3';
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import contractAbi from "../../abis/contract.json";
+import tokenAbi from "../../abis/token.json"
 import { Link } from 'react-router-dom'
 import img1 from '../../assets/images/icon/icon-1.svg'
 import img2 from '../../assets/images/icon/icon-2.svg'
@@ -16,7 +17,7 @@ import img9 from '../../assets/images/icon/icon-9.svg'
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 
 const WalletConnect = () => {
-    const { setUserInfo, setProvider, setContract, contractAddress , tokenAddress} = useContext(mainContext);
+    const { setUserInfo, setProvider, setContract, contractAddress, tokenAddress, setToken} = useContext(mainContext);
 
     //FUNCTIONS
     const loadContract = () => {

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { mainContext } from "../Contexts/mainContext";
 import Header from "../components/header/Header";
 import Slider from "../components/slider/Slider";
@@ -7,21 +7,190 @@ import imgdetail1 from "../assets/images/product-item/nft.jpg";
 import dataSlider from "../assets/fake-data/dataSlider";
 import Footer from "../components/footer/Footer";
 import { Newsletters } from "../components/layouts/home/Newsletters";
+import { useState } from "react";
 
 const Home02 = () => {
-  const { contract } = useContext(mainContext);
-  const tokenURI = async (tokenId) => {
+  const { contract, token, contractAddress, setRender, render, userInfo } = useContext(mainContext);
+  const [ownerOfState, setOwnerOf] = useState();
+  const [tokenMetaData, setTokenMetaData] = useState();
+  const [levelState, setLevel] = useState();
+  const [allowanceState, setAllowance] = useState();
+  const [maxMatureBirdCostState, setMaxMatureBirdCost] = useState();
+  const [matureBirdCostState, setMatureBirdCost] = useState();
+  const [tokenId, setTokenId] = useState(false);
+  const [approveForMatureBirdBtn, setApproveForMatureBirdBtn] = useState(false);
+  const [approveForMaxMatureBirdBtn, setApproveForMaxMatureBirdBtn] = useState(false);
+  const [upgradeToMatureBirdBtn, setUpgradeToMatureBirdBtn] = useState(false);
+  const [upgradeToMaxMatureBirdBtn, setUpgradeToMaxMatureBirdBtn] = useState(false);
+
+  //FUNCTIONS
+  //CALLING FUNCTIONS
+
+  useEffect(() => {
+    if (tokenId) {
+      ownerOf(),
+        tokenURI(),
+        level(),
+        matureBirdCost(),
+        maxMatureBirdCost(),
+        allowance()
+    }
+  }, [tokenId])
+
+
+  const ownerOf = async () => {
+    try {
+      await contract.methods.ownerOf(tokenId).call(function (err, res) {
+        if (err) {
+          console.log("An error occured", err);
+          return;
+        } else {
+          setOwnerOf(res);
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  const tokenURI = async () => {
     try {
       await contract.methods.tokenURI(tokenId).call(function (err, res) {
         if (err) {
           console.log("An error occured", err);
           return;
         } else {
-          // setOwnerOf(res);
+          setTokenMetaData(res);
         }
       })
     } catch (e) {
       console.log(e)
+    }
+  }
+
+  const level = async () => {
+    try {
+      await contract.methods.level(tokenId).call(function (err, res) {
+        if (err) {
+          console.log("An error occured", err);
+          return;
+        } else {
+          setLevel(res);
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const matureBirdCost = async () => {
+    try {
+      await contract.methods.matureBirdCost(tokenId).call(function (err, res) {
+        if (err) {
+          console.log("An error occured", err);
+          return;
+        } else {
+          setMatureBirdCost(res);
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const maxMatureBirdCost = async () => {
+    try {
+      await contract.methods.maxMatureBirdCost(tokenId).call(function (err, res) {
+        if (err) {
+          console.log("An error occured", err);
+          return;
+        } else {
+          setMaxMatureBirdCost(res);
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const allowance = async () => {
+    try {
+      await token.methods.allowance(userInfo?.address, contractAddress).call(function (err, res) {
+        if (err) {
+          console.log("An error occured", err);
+          return;
+        } else {
+          setAllowance(res);
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  //SENDING FUNCTIONS
+
+  const approve = async (cost) => {
+    await token.methods.approve(contractAddress, cost).send({ from: userInfo?.address }).then(() => {
+      if (levelState === 1) {
+        if (allowanceState >= matureBirdCostState) {
+          setApproveForMatureBirdBtn(false);
+          setUpgradeToMatureBirdBtn(true);
+        }
+      }
+      else if (levelState === 2) {
+        if (allowanceState >= maxMatureBirdCostState) {
+          setApproveForMaxMatureBirdBtn(false);
+          setUpgradeToMaxMatureBirdBtn(true);
+        }
+      }
+    })
+  }
+  // if (allowanceState <= matureBirdCostState) {
+  //   setApproveBtn(true)
+  // } else {
+  //   setUpgradeToMatureBirdBtn(true)
+  // }
+  const upgradeToMatureBird = async () => {
+    try {
+      await contract.methods.upgradeToMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
+        setRender(!render)
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  const upgradeToMaxMatureBird = async () => {
+    try {
+      await contract.methods.upgradeToMaxMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
+        setRender(!render)
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  const withdrawReward = async () => {
+    try {
+      await contract.methods.withdrawReward(tokenId).send({ from: userInfo?.address }).on('transactionHash', Hash => {
+        setRender(!render)
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const upgradeBird = async () => {
+    if (levelState === 0) {
+      alert("You Need to Hatch the Bird first.")
+    }
+    else if (levelState === 1) {
+      if (allowanceState <= matureBirdCostState) {
+        setApproveForMatureBirdBtn(true)
+      }
+    }
+    else if (levelState === 2) {
+      if (allowanceState <= maxMatureBirdCostState) {
+        setApproveForMaxMatureBirdBtn(true)
+      }
     }
   }
 
@@ -37,6 +206,7 @@ const Home02 = () => {
                 <div className="content-left">
                   <div className="inner">
                     <h3>My NFT's</h3>
+
                   </div>
                 </div>
               </div>
