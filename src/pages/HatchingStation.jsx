@@ -9,7 +9,7 @@ import Countdown from "react-countdown";
 
 const HatchingStation
   = () => {
-    const { contract, setRender, render, userInfo } = useContext(mainContext)
+    const { contract, setRender, render, userInfo, userNFTs } = useContext(mainContext);
     const [hatchRemainingTimeState, setHatchRemainingTime] = useState(0);
     const [tokenId, setTokenId] = useState();
 
@@ -109,12 +109,15 @@ const HatchingStation
               <div className="col-xl-6 col-lg-12 col-md-12">
                 <div className="content-item">
                   <div>
-                    {/* THIS ONCHANGE WILL HAVE THE TOKENID WE WILLL SET TOKEN ID HERE */}
-                    <select onChange={(e) => console.log(e.target.value)} className="font-weight-bold rounded text-dark p-3 col-xl-12 col-lg-12 col-md-1">
-                      <option value="grapefruit">Grapefruit</option>
-                      <option value="lime">Lime</option>
-                      <option selected value="coconut">Coconut</option>
-                      <option value="mango">Mango</option>
+                    <select onChange={(e) => setTokenId(e.target.value)} className="font-weight-bold rounded text-dark p-3 col-xl-12 col-lg-12 col-md-1">
+                      <option defaultValue value={false}>Select Token Id</option>
+                      {
+                        userNFTs?.result?.map((NFT, i) => {
+                          return (
+                            <option value={NFT?.token_id}>{NFT?.token_id}</option>
+                          )
+                        })
+                      }
                     </select>
                   </div>
                   <h3> Egg NFT</h3>

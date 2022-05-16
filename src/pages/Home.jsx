@@ -10,7 +10,7 @@ import { Newsletters } from "../components/layouts/home/Newsletters";
 import { useState } from "react";
 
 const Home02 = () => {
-  const { contract, token, contractAddress, setRender, render, userInfo } = useContext(mainContext);
+  const { contract, token, contractAddress, setRender, render, userInfo, userNFTs } = useContext(mainContext);
   const [ownerOfState, setOwnerOf] = useState();
   const [tokenMetaData, setTokenMetaData] = useState();
   const [levelState, setLevel] = useState();
@@ -32,9 +32,9 @@ const Home02 = () => {
       ownerOf()
       tokenURI()
       level()
+      allowance()
       matureBirdCost()
       maxMatureBirdCost()
-      allowance()
     }
   }, [tokenId])
 
@@ -47,6 +47,7 @@ const Home02 = () => {
           return;
         } else {
           setOwnerOf(res);
+          console.log(res)
         }
       })
     } catch (e) {
@@ -60,7 +61,8 @@ const Home02 = () => {
           console.log("An error occured", err);
           return;
         } else {
-          setTokenMetaData(res);
+          setTokenMetaData(JSON.parse(res));
+          console.log(res)
         }
       })
     } catch (e) {
@@ -76,6 +78,7 @@ const Home02 = () => {
           return;
         } else {
           setLevel(res);
+          console.log(res)
         }
       })
     } catch (e) {
@@ -84,32 +87,43 @@ const Home02 = () => {
   }
 
   const matureBirdCost = async () => {
-    try {
-      await contract.methods.matureBirdCost(tokenId).call(function (err, res) {
-        if (err) {
-          console.log("An error occured", err);
-          return;
-        } else {
-          setMatureBirdCost(res);
-        }
-      })
-    } catch (e) {
-      console.log(e)
+    if (levelState > 0) {
+      try {
+        await contract.methods.matureBirdCost(tokenId).call(function (err, res) {
+          if (err) {
+            console.log("An error occured", err);
+            return;
+          } else {
+            setMatureBirdCost(res);
+            console.log(res)
+
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    } else {
+      alert("Only baby bird can be upgraded.")
     }
   }
 
   const maxMatureBirdCost = async () => {
-    try {
-      await contract.methods.maxMatureBirdCost(tokenId).call(function (err, res) {
-        if (err) {
-          console.log("An error occured", err);
-          return;
-        } else {
-          setMaxMatureBirdCost(res);
-        }
-      })
-    } catch (e) {
-      console.log(e)
+    if (levelState > 0) {
+      try {
+        await contract.methods.maxMatureBirdCost(tokenId).call(function (err, res) {
+          if (err) {
+            console.log("An error occured", err);
+            return;
+          } else {
+            setMaxMatureBirdCost(res);
+            console.log(res)
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    } else {
+      alert("Only baby bird can be upgraded.")
     }
   }
 
@@ -146,11 +160,7 @@ const Home02 = () => {
       }
     })
   }
-  // if (allowanceState <= matureBirdCostState) {
-  //   setApproveBtn(true)
-  // } else {
-  //   setUpgradeToMatureBirdBtn(true)
-  // }
+
   const upgradeToMatureBird = async () => {
     try {
       await contract.methods.upgradeToMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
@@ -222,11 +232,15 @@ const Home02 = () => {
               <div className="content-item">
                 <div>
                   {/* THIS ONCHANGE WILL HAVE THE TOKENID WE WILLL SET TOKEN ID HERE */}
-                  <select onChange={(e) => console.log(e.target.value)} className="font-weight-bold rounded text-dark p-3 col-xl-12 col-lg-12 col-md-1">
-                    <option value="grapefruit">Grapefruit</option>
-                    <option value="lime">Lime</option>
-                    <option selected value="coconut">Coconut</option>
-                    <option value="mango">Mango</option>
+                  <select onChange={(e) => setTokenId(e.target.value)} className="font-weight-bold rounded text-dark p-3 col-xl-12 col-lg-12 col-md-1">
+                    <option defaultValue value={false}>Select Token Id</option>
+                    {
+                      userNFTs?.result?.map((NFT, i) => {
+                        return (
+                          <option value={NFT?.token_id}>{NFT?.token_id}</option>
+                        )
+                      })
+                    }
                   </select>
                 </div>
                 <h3> First NFT</h3>

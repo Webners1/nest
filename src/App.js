@@ -11,15 +11,16 @@ function App() {
     const [contract, setContract] = useState();
     const [token, setToken] = useState();
     const [render, setRender] = useState();
-    const contractAddress = '0x2122d9A056ecc5105Ca82Aeb0749E0Fe8476DF12'
-    const tokenAddress = '0xD4Bc43c13922994dFd489999F9BB5F4edB04Ffa5'
+    const contractAddress = '0x0D40C239194B1f29E4Ad9135Be4a6488c3238918'
+    const tokenAddress = '0xD4Bc43c13922994dFd489999F9BB5F4edB04Ffa5';
+    const [userNFTs, setUserNFTs] = useState();
     // const [account, setAccount] = useState();
     return (
         <mainContext.Provider
             value={{
                 setUserInfo, setProvider, userInfo, provider, contract,
                 setContract, contractAddress, tokenAddress, setRender, render,
-                token, setToken
+                token, setToken, setUserNFTs, userNFTs
             }}>
             <Routes >
                 {

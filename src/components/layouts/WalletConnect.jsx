@@ -15,9 +15,10 @@ import img7 from '../../assets/images/icon/icon-7.png'
 import img8 from '../../assets/images/icon/icon-8.svg'
 import img9 from '../../assets/images/icon/icon-9.svg'
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+import Moralis from "moralis";
 
 const WalletConnect = () => {
-    const { setUserInfo, setProvider, setContract, contractAddress, tokenAddress, setToken} = useContext(mainContext);
+    const { setUserInfo, setProvider, setContract, contractAddress, tokenAddress, setToken, setUserNFTs } = useContext(mainContext);
 
     //FUNCTIONS
     const loadContract = () => {
@@ -58,6 +59,14 @@ const WalletConnect = () => {
                 // THIS HAS TO BE GLOBAL (account)
                 let address = account[0];
                 address = address.toLowerCase();
+                const options = {
+                    chain: "mumbai",
+                    address: address,
+                    token_address: contractAddress,
+                };
+                const NFTs = await Moralis.Web3API.account.getNFTsForContract(options);
+                setUserNFTs(NFTs);
+                console.log(NFTs)
                 let balance = await web3.eth.getBalance(address);
                 console.log(balance);
                 setUserInfo({
