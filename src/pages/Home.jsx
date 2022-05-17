@@ -256,9 +256,9 @@ const Home02 = () => {
               <div className="item-media">
                 {
                   tokenMetaData ?
-                    <div className="media">
-                      <img src={tokenMetaData?.image_data} alt="Details" />
-                    </div>
+                    <video width="750" height="500" controls >
+                      <source src={tokenMetaData?.image_data} type="video/mp4" />
+                    </video>
                     :
                     <div className="media">
                       <img src={imgdetail1} alt="Details" />
@@ -324,7 +324,7 @@ const Home02 = () => {
                     </div>
                   </div>
                 </div>
-                {upgradeBtn &&
+                {(upgradeBtn && levelState > 0) &&
                   <button
                     onClick={() => { upgradeBird(); setUpgradeBtn(!upgradeBtn) }}
                     className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
@@ -333,7 +333,7 @@ const Home02 = () => {
                   </button>
                 }
                 {
-                  approveForMatureBirdBtn &&
+                  (approveForMatureBirdBtn && levelState > 0) &&
                   <button
                     onClick={() => approve(matureBirdCostState)}
                     className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
@@ -342,7 +342,7 @@ const Home02 = () => {
                   </button>
                 }
                 {
-                  approveForMaxMatureBirdBtn &&
+                  (approveForMaxMatureBirdBtn && levelState > 0) &&
                   <button
                     onClick={() => approve(maxMatureBirdCostState)}
                     className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
@@ -351,7 +351,7 @@ const Home02 = () => {
                   </button>
                 }
                 {
-                  upgradeToMatureBirdBtn &&
+                  (upgradeToMatureBirdBtn && levelState > 0) &&
                   <button
                     onClick={() => upgradeToMatureBird()}
                     className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
@@ -360,7 +360,7 @@ const Home02 = () => {
                   </button>
                 }
                 {
-                  upgradeToMaxMatureBirdBtn &&
+                  (upgradeToMaxMatureBirdBtn && levelState > 0) &&
                   <button
                     onClick={() => upgradeToMaxMatureBird()}
                     className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
