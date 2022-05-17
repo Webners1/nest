@@ -11,15 +11,33 @@ const HatchingStation
   = () => {
     const { contract, setRender, render, userInfo, userNFTs } = useContext(mainContext);
     const [hatchRemainingTimeState, setHatchRemainingTime] = useState(0);
-    const [tokenId, setTokenId] = useState();
-
+    const [tokenId, setTokenId] = useState(false);
+    const [levelState, setLevel] = useState(false);
+    console.log(userNFTs)
     // FUNCTIONS
 
     useEffect(() => {
       if (tokenId) {
         hatchRemainingTime()
+        level()
       }
-    }, [tokenId])
+    }, [tokenId, render])
+
+    const level = async () => {
+      try {
+        await contract?.methods.level(tokenId).call(function (err, res) {
+          if (err) {
+            console.log("An error occured", err);
+            return;
+          } else {
+            setLevel(res);
+            console.log(res)
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }
 
     const lockInIncubator = async () => {
       try {
@@ -33,14 +51,17 @@ const HatchingStation
 
     const hatchRemainingTime = async () => {
       try {
-        await contract?.methods.hatchRemainingTime(tokenId).call(function (err, res) {
-          if (err) {
-            console.log("An error occured", err);
-            return;
-          } else {
-            setHatchRemainingTime(res)
-          }
-        })
+        if (tokenId) {
+          await contract?.methods.hatchRemainingTime(tokenId).call(function (err, res) {
+            if (err) {
+              console.log("An error occured", err);
+              return;
+            } else {
+              setHatchRemainingTime(res)
+              console.log(res)
+            }
+          })
+        }
       } catch (e) {
         console.log(e)
       }
@@ -142,14 +163,16 @@ const HatchingStation
                     </div>
                   </div>
                   {
-                    hatchRemainingTime === Date.now() ?
+                    (hatchRemainingTimeState == 0  && levelState == 0) &&
                       <button
                         onClick={() => hatchEgg()}
                         className="sc-button style letter style-2 style-item-details hatch"
                       >
                         <span>Hatch</span>
                       </button>
-                      :
+                  }
+                  {
+                    levelState == 0 &&
                       <button
                         onClick={() => lockInIncubator()}
                         className="sc-button style letter style-2 style-item-details hatch"

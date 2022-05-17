@@ -11,7 +11,7 @@ function App() {
     const [contract, setContract] = useState();
     const [token, setToken] = useState();
     const [render, setRender] = useState();
-    const contractAddress = '0x0D40C239194B1f29E4Ad9135Be4a6488c3238918'
+    const contractAddress = '0x5a2AADF95472461cF95a69FC09A880569D2B0dde'
     const tokenAddress = '0xD4Bc43c13922994dFd489999F9BB5F4edB04Ffa5';
     const [userNFTs, setUserNFTs] = useState();
     // const [account, setAccount] = useState();

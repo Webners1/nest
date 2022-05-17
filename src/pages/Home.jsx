@@ -12,7 +12,7 @@ import { useState } from "react";
 const Home02 = () => {
   const { contract, token, contractAddress, setRender, render, userInfo, userNFTs } = useContext(mainContext);
   const [ownerOfState, setOwnerOf] = useState();
-  const [tokenMetaData, setTokenMetaData] = useState();
+  let [tokenMetaData, setTokenMetaData] = useState(false);
   const [levelState, setLevel] = useState();
   const [allowanceState, setAllowance] = useState();
   const [maxMatureBirdCostState, setMaxMatureBirdCost] = useState();
@@ -23,6 +23,8 @@ const Home02 = () => {
   const [upgradeToMatureBirdBtn, setUpgradeToMatureBirdBtn] = useState(false);
   const [upgradeToMaxMatureBirdBtn, setUpgradeToMaxMatureBirdBtn] = useState(false);
   const [upgradeBtn, setUpgradeBtn] = useState(true);
+  const [rarity, setRarity] = useState();
+  var base64 = require('base-64');
 
   //FUNCTIONS
   //CALLING FUNCTIONS
@@ -30,18 +32,22 @@ const Home02 = () => {
   useEffect(() => {
     if (tokenId) {
       ownerOf()
+      getRarity()
       tokenURI()
       level()
       allowance()
-      matureBirdCost()
-      maxMatureBirdCost()
+      if (levelState === 1) {
+        matureBirdCost()
+      } else if (levelState === 2) {
+        maxMatureBirdCost()
+      }
     }
   }, [tokenId])
 
 
   const ownerOf = async () => {
     try {
-      await contract.methods.ownerOf(tokenId).call(function (err, res) {
+      await contract?.methods.ownerOf(tokenId).call(function (err, res) {
         if (err) {
           console.log("An error occured", err);
           return;
@@ -54,14 +60,33 @@ const Home02 = () => {
       console.log(e)
     }
   }
+
   const tokenURI = async () => {
     try {
-      await contract.methods.tokenURI(tokenId).call(function (err, res) {
+      await contract?.methods.tokenURI(tokenId).call(function (err, res) {
         if (err) {
           console.log("An error occured", err);
           return;
         } else {
-          setTokenMetaData(JSON.parse(res));
+          let stringMetaData = base64.decode(res.slice(29, -1));
+          let metaData = JSON.parse(stringMetaData);
+          setTokenMetaData(metaData);
+          console.log(metaData)
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const getRarity = async () => {
+    try {
+      await contract?.methods.getRarity(tokenId).call(function (err, res) {
+        if (err) {
+          console.log("An error occured", err);
+          return;
+        } else {
+          setRarity(res);
           console.log(res)
         }
       })
@@ -70,9 +95,10 @@ const Home02 = () => {
     }
   }
 
+
   const level = async () => {
     try {
-      await contract.methods.level(tokenId).call(function (err, res) {
+      await contract?.methods.level(tokenId).call(function (err, res) {
         if (err) {
           console.log("An error occured", err);
           return;
@@ -87,7 +113,9 @@ const Home02 = () => {
   }
 
   const matureBirdCost = async () => {
-    if (levelState > 0) {
+    // level()
+    // console.log(levelState == 1)
+    if (levelState == 1) {
       try {
         await contract.methods.matureBirdCost(tokenId).call(function (err, res) {
           if (err) {
@@ -108,9 +136,10 @@ const Home02 = () => {
   }
 
   const maxMatureBirdCost = async () => {
-    if (levelState > 0) {
+    // level()
+    if (levelState == 2) {
       try {
-        await contract.methods.maxMatureBirdCost(tokenId).call(function (err, res) {
+        await contract?.methods.maxMatureBirdCost(tokenId).call(function (err, res) {
           if (err) {
             console.log("An error occured", err);
             return;
@@ -129,7 +158,7 @@ const Home02 = () => {
 
   const allowance = async () => {
     try {
-      await token.methods.allowance(userInfo?.address, contractAddress).call(function (err, res) {
+      await token?.methods.allowance(userInfo?.address, contractAddress).call(function (err, res) {
         if (err) {
           console.log("An error occured", err);
           return;
@@ -145,7 +174,7 @@ const Home02 = () => {
   //SENDING FUNCTIONS
 
   const approve = async (cost) => {
-    await token.methods.approve(contractAddress, cost).send({ from: userInfo?.address }).then(() => {
+    await token?.methods.approve(contractAddress, cost).send({ from: userInfo?.address }).then(() => {
       if (levelState === 1) {
         if (allowanceState >= matureBirdCostState) {
           setApproveForMatureBirdBtn(false);
@@ -163,25 +192,27 @@ const Home02 = () => {
 
   const upgradeToMatureBird = async () => {
     try {
-      await contract.methods.upgradeToMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
+      await contract?.methods.upgradeToMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
         setRender(!render)
       })
     } catch (e) {
       console.log(e)
     }
   }
+
   const upgradeToMaxMatureBird = async () => {
     try {
-      await contract.methods.upgradeToMaxMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
+      await contract?.methods.upgradeToMaxMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
         setRender(!render)
       })
     } catch (e) {
       console.log(e)
     }
   }
+
   const withdrawReward = async () => {
     try {
-      await contract.methods.withdrawReward(tokenId).send({ from: userInfo?.address }).on('transactionHash', Hash => {
+      await contract?.methods.withdrawReward(tokenId).send({ from: userInfo?.address }).on('transactionHash', Hash => {
         setRender(!render)
       })
     } catch (e) {
@@ -223,9 +254,16 @@ const Home02 = () => {
             </div>
             <div className="col-xl-6 col-lg-12 col-md-12">
               <div className="item-media">
-                <div className="media">
-                  <img src={imgdetail1} alt="Details" />
-                </div>
+                {
+                  tokenMetaData ?
+                    <div className="media">
+                      <img src={tokenMetaData?.image_data} alt="Details" />
+                    </div>
+                    :
+                    <div className="media">
+                      <img src={imgdetail1} alt="Details" />
+                    </div>
+                }
               </div>
             </div>
             <div className="col-xl-6 col-lg-12 col-md-12">
@@ -266,14 +304,24 @@ const Home02 = () => {
                       <h6>
                         <Link to="#">Rarity</Link>{" "}
                       </h6>
-                      <div className="create">Text</div>
+                      <div className="create">{rarity}</div>
                     </div>
                   </div>
                 </div>
                 <div className="infor-bid">
                   <div className="content-left">
                     <h6>Attributes</h6>
-                    <div className="price">Text</div>
+                    <div className="price">
+                      {
+                        tokenMetaData?.attributes?.map((attribute, i) => {
+                          return (
+                            <div>
+                              <p>{attribute.trait_type}: {attribute.value}</p>
+                            </div>
+                          )
+                        })
+                      }
+                    </div>
                   </div>
                 </div>
                 {upgradeBtn &&
