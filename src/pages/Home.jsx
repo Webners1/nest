@@ -27,22 +27,21 @@ const Home02 = () => {
   var base64 = require('base-64');
 
   //FUNCTIONS
-  //CALLING FUNCTIONS
+  //CALLING FUNCTIONS 
 
   useEffect(() => {
     if (tokenId) {
-      ownerOf()
-      getRarity()
-      tokenURI()
       level()
-      allowance()
-      if (levelState === 1) {
+      if (tokenId && levelState) {
+        ownerOf()
+        getRarity()
+        tokenURI()
+        allowance()
         matureBirdCost()
-      } else if (levelState === 2) {
         maxMatureBirdCost()
       }
     }
-  }, [tokenId])
+  }, [tokenId, levelState, render])
 
 
   const ownerOf = async () => {
@@ -68,7 +67,9 @@ const Home02 = () => {
           console.log("An error occured", err);
           return;
         } else {
-          let stringMetaData = base64.decode(res.slice(29, -1));
+          let stringMetaData = base64.decode(res.slice(29));
+          console.log(res.slice(29))
+          console.log(base64.decode(res.slice(29)))
           let metaData = JSON.parse(stringMetaData);
           setTokenMetaData(metaData);
           console.log(metaData)
@@ -80,18 +81,22 @@ const Home02 = () => {
   }
 
   const getRarity = async () => {
-    try {
-      await contract?.methods.getRarity(tokenId).call(function (err, res) {
-        if (err) {
-          console.log("An error occured", err);
-          return;
-        } else {
-          setRarity(res);
-          console.log(res)
-        }
-      })
-    } catch (e) {
-      console.log(e)
+    if (levelState > 0) {
+      try {
+        await contract?.methods.getRarity(tokenId).call(function (err, res) {
+          if (err) {
+            console.log("An error occured", err);
+            return;
+          } else {
+            setRarity(res);
+            console.log(res)
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    } else {
+      setRarity("Not Hatched Yet.")
     }
   }
 
@@ -113,8 +118,6 @@ const Home02 = () => {
   }
 
   const matureBirdCost = async () => {
-    // level()
-    // console.log(levelState == 1)
     if (levelState == 1) {
       try {
         await contract.methods.matureBirdCost(tokenId).call(function (err, res) {
@@ -130,8 +133,6 @@ const Home02 = () => {
       } catch (e) {
         console.log(e)
       }
-    } else {
-      alert("Only baby bird can be upgraded.")
     }
   }
 
@@ -151,8 +152,6 @@ const Home02 = () => {
       } catch (e) {
         console.log(e)
       }
-    } else {
-      alert("Only baby bird can be upgraded.")
     }
   }
 
@@ -164,6 +163,7 @@ const Home02 = () => {
           return;
         } else {
           setAllowance(res);
+          console.log("allowance ==>", res)
         }
       })
     } catch (e) {
@@ -174,26 +174,43 @@ const Home02 = () => {
   //SENDING FUNCTIONS
 
   const approve = async (cost) => {
+    if (levelState == 1) {
+      if (allowanceState >= matureBirdCostState) {
+        setApproveForMatureBirdBtn(false);
+        setUpgradeToMatureBirdBtn(true);
+        return;
+      }
+    }
+    else if (levelState == 2) {
+      if (allowanceState >= maxMatureBirdCostState) {
+        setApproveForMaxMatureBirdBtn(false);
+        setUpgradeToMaxMatureBirdBtn(true);
+        return;
+      }
+    }
     await token?.methods.approve(contractAddress, cost).send({ from: userInfo?.address }).then(() => {
-      if (levelState === 1) {
-        if (allowanceState >= matureBirdCostState) {
-          setApproveForMatureBirdBtn(false);
-          setUpgradeToMatureBirdBtn(true);
-        }
-      }
-      else if (levelState === 2) {
-        if (allowanceState >= maxMatureBirdCostState) {
-          setApproveForMaxMatureBirdBtn(false);
-          setUpgradeToMaxMatureBirdBtn(true);
-        }
-      }
+      setRender(!render);
     })
+    if (levelState == 1) {
+      if (allowanceState >= matureBirdCostState) {
+        setApproveForMatureBirdBtn(false);
+        setUpgradeToMatureBirdBtn(true);
+        return;
+      }
+    }
+    else if (levelState == 2) {
+      if (allowanceState >= maxMatureBirdCostState) {
+        setApproveForMaxMatureBirdBtn(false);
+        setUpgradeToMaxMatureBirdBtn(true);
+        return;
+      }
+    }
   }
 
   const upgradeToMatureBird = async () => {
     try {
       await contract?.methods.upgradeToMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
-        setRender(!render)
+        window.location.reload()
       })
     } catch (e) {
       console.log(e)
@@ -203,7 +220,7 @@ const Home02 = () => {
   const upgradeToMaxMatureBird = async () => {
     try {
       await contract?.methods.upgradeToMaxMatureBird(tokenId).send({ from: userInfo?.address }).then(() => {
-        setRender(!render)
+        window.location.reload()
       })
     } catch (e) {
       console.log(e)
@@ -221,17 +238,33 @@ const Home02 = () => {
   }
 
   const upgradeBird = async () => {
-    if (levelState === 0) {
+    if (levelState == 0) {
       alert("You Need to Hatch the Bird first.")
     }
-    else if (levelState === 1) {
+    else if (levelState == 1) {
+      console.log("ghusssaa1")
+      console.log("2=>", matureBirdCostState)
+      console.log("1=>", allowanceState)
       if (allowanceState <= matureBirdCostState) {
+        console.log("1")
         setApproveForMatureBirdBtn(true)
+        setUpgradeBtn(!upgradeBtn)
+      } else if (allowanceState > matureBirdCostState) {
+        console.log("2")
+        setUpgradeBtn(!upgradeBtn)
+        setUpgradeToMatureBirdBtn(true);
       }
     }
-    else if (levelState === 2) {
+    else if (levelState == 2) {
+      console.log("ghusssaa2")
       if (allowanceState <= maxMatureBirdCostState) {
+        console.log("2")
         setApproveForMaxMatureBirdBtn(true)
+        setUpgradeBtn(!upgradeBtn)
+      } else if (allowanceState > maxMatureBirdCostState) {
+        console.log("3")
+        setUpgradeBtn(!upgradeBtn)
+        setUpgradeToMaxMatureBirdBtn(true);
       }
     }
   }
@@ -321,12 +354,26 @@ const Home02 = () => {
                           )
                         })
                       }
+                      {
+                        !(tokenMetaData?.attributes) &&
+                        <div>
+                          <p>No Attributes</p>
+                        </div>
+                      }
                     </div>
                   </div>
                 </div>
+                {(levelState > 1) &&
+                  <button
+                    onClick={() => { withdrawReward() }}
+                    className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
+                  >
+                    <span>Withdraw</span>
+                  </button>
+                }
                 {(upgradeBtn && levelState > 0) &&
                   <button
-                    onClick={() => { upgradeBird(); setUpgradeBtn(!upgradeBtn) }}
+                    onClick={() => { upgradeBird() }}
                     className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
                   >
                     <span>Upgrade</span>
@@ -356,7 +403,7 @@ const Home02 = () => {
                     onClick={() => upgradeToMatureBird()}
                     className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
                   >
-                    <span>Approve Max Mature Bird</span>
+                    <span>Upgrade Mature Bird</span>
                   </button>
                 }
                 {
@@ -365,7 +412,7 @@ const Home02 = () => {
                     onClick={() => upgradeToMaxMatureBird()}
                     className="ml-3 mr-5 sc-button style letter style-2 style-item-details wallet-btn"
                   >
-                    <span>Approve Max Mature Bird</span>
+                    <span>Upgrade Max Mature Bird</span>
                   </button>
                 }
                 {/* <button
